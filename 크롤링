@@ -1,0 +1,105 @@
+import pandas as pd
+import numpy as np
+from selenium import webdriver
+import re
+from bs4 import BeautifulSoup
+import urllib.request as req
+import time
+import requests # 서버에 요청하여 응답을 받아옴
+from selenium.webdriver.common.keys import Keys 
+import bs4
+import warnings
+warnings.filterwarnings(action='ignore')
+# 다음 들어가서 행복 검색
+driver= webdriver.Chrome("C:/Users/CHA-LAPTOP/Downloads/chromedriver")
+url= "https://www.daum.net/"
+driver.get(url)
+searchbox= driver.find_element_by_xpath('//*[@id="q"]')
+word= "행복이미지"
+searchbox.send_keys(word)
+searchbox.send_keys(Keys.ENTER)
+print(driver.current_url)
+url2= driver.current_url
+
+r= requests.get(url2)
+bs4_r= bs4.BeautifulSoup(r.text, 'lxml')
+div_inner= bs4_r.find('div', class_='list_keyword type2')
+
+try:
+    div_inner= bs4_r.find('div',class_='list_keyword type2')
+    span_list= div_inner.find_all('span', class_='wsn')
+except:
+    if pd.isna(div_inner):
+        try:
+            div_inner= bs4_r.find('div', class_='list_keyword')
+            span_list= div_inner.find_all('span',class_='wsn')
+        except:
+            # print(word_list[i], '연관 검색어가 없습니다.')
+            span_list=[]
+
+related_word_list= []
+for i,word in enumerate(span_list):
+    related_word_list.append(span_list[i].text)
+related_word_list
+
+df= pd.DataFrame()
+df['sub_word']= related_word_list
+# df['sup_word']= related_word_list[0]
+df
+
+def crawlig_related_word(word_list, n):
+    if n==0:
+        print("크롤링 종료")
+    else:
+        merge_df = pd.DataFrame()
+        for i in range(len(word_list)):
+           temp_df= pd.DataFrame()
+           temp_list= []
+           driver= webdriver.Chrome("C:/Users/CHA-LAPTOP/Downloads/chromedriver")
+           url2= "https://www.daum.net/"
+           driver.get(url2)
+           searchbox= driver.find_element_by_xpath('//*[@id="q"]')
+           word= word_list[i]
+           searchbox.send_keys(word)
+           searchbox.send_keys(Keys.ENTER)
+           url2= driver.current_url
+           r= requests.get(url2)
+           bs4_r= bs4.BeautifulSoup(r.text, 'lxml')
+           print(word_list[i])
+           div_inner= bs4_r.find('div', class_='list_keyword type2')
+           try:
+               div_inner= bs4_r.find('div',class_='list_keyword type2')
+               span_list= div_inner.find_all('span', class_='wsn')
+           except:
+               if pd.isna(div_inner):
+                   try:
+                       div_inner= bs4_r.find('div',class_='list_keyword')
+                       span_list= div_inner.find_all('span',class_='wsn')
+                   except:
+                       print(word_list[i],'연관 검색어가 없습니다')
+                       span_list= []
+           if len(span_list) ==0:
+               pass
+           else:
+               for k,word in enumerate(span_list):
+                   temp_list.append(span_list[k].text)
+               temp_df['sub_word']= temp_list
+               temp_df['sup_word']= word_list[i]
+               temp_df= pd.DataFrame(temp_df, columns=['sup_word', 'sub_word'])
+               merge_df= pd.concat([merge_df,temp_df],axis=0)
+              
+        dictionary[n]= merge_df
+        pass_word_list= merge_df['sub_word'].values
+        print('크롤링 시작!')
+        crawlig_related_word(pass_word_list, n-1)
+
+a= pd.DataFrame(dictionary[3])
+b= pd.DataFrame(dictionary[2])
+c= pd.DataFrame(dictionary[1])
+a.columns=['1st crawl','2nd crawl']
+b.columns=['2nd crawl','3rd crawl']
+c.columns=['3rd crawl','4th crawl']
+
+d= pd.merge(a,b)
+e= pd.merge(d,c)
+e.to_csv('craw1_test.csv')
