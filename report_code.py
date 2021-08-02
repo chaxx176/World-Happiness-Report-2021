@@ -134,6 +134,13 @@ report3_3.fillna(method='ffill',inplace=True)
 report3_3.isnull().sum()
 report3_3.to_csv('report3_3.csv',index=False)
 report3_3.info()
+report3_3.set_index('Country',inplace=True)
+report3_5=report3_3.drop(index='Hong Kong')
+report3_5.to_csv('report3_5.csv')
+
+report3_5.info()
+
+
 
 
 
