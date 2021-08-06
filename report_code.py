@@ -132,34 +132,55 @@ obesity.rename(columns={'Entity':'Country','Obesity (IHME, 2019)':'Obesity'},inp
 report3_3=pd.merge(report3_2,obesity,how='left',on=['Country','Year'])
 report3_3.fillna(method='ffill',inplace=True)
 report3_3.isnull().sum()
-report3_3.to_csv('report3_3.csv',index=False)
-report3_3.info()
-report3_3.set_index('Country',inplace=True)
-report3_5=report3_3.drop(index='Hong Kong')
+report3_3.to_csv('report3_4.csv',index=False)
+report3_4=pd.read_csv('report3_4.csv')
+report3_4.set_index('Country',inplace=True)
+report3_5=report3_4.drop(index='Hong Kong')
 report3_5.to_csv('report3_5.csv')
 
 report3_5.info()
 
 
+### birth rate / fertility1 / fertility2 
+import pandas as pd 
+report3_5=pd.read_csv('report3_5.csv')
+
+br=pd.read_csv('annual-number-of-births-by-world-region.csv')
+br.info()
+br.head()
+br.columns
+br.Year.unique().max()
+br.rename(columns={'Entity':'Country','Estimates, 1950 - 2020: Annually interpolated demographic indicators - Births (thousands)':'Birth'},inplace=True)
+del br['Code']
+re1=pd.merge(report3_5,br,how='left',on=['Country','Year'])
+re1.isnull().sum()
+br
+
+br1=pd.read_csv('children-born-per-woman.csv')
+br1.info()
+br1.columns
+br1.Year.unique().max()
+br1.rename(columns={'Entity':'Coutryn','Fertility rate (Select Gapminder, v12) (2017)':'Fertility'},inplace=True)
+del br1['Code']
+re2=pd.merge(report3_5,br1,how='left',on=['Country','Year'])
+re2.isnull().sum()
 
 
+br2=pd.read_csv('children-per-woman-UN.csv')
+br2.info()
+br2.columns
+br2.Year.unique().max()
+br2.rename\
+    (columns={'Entity':'Country','Estimates, 1950 - 2020: Annually interpolated demographic indicators - Total fertility (live births per woman)':'Fertility'},inplace=True)
+br2.Fertility.max()  
 
+del br2['Code']
 
+re3=pd.merge(report3_5,br2,how='left',on=['Country','Year'])
+re4=pd.merge(re3,br,how='left',on=['Country','Year'])
+re4.isnull().sum()
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+re3.to_csv('report3_7.csv',index=False) ###final
 
 
 
