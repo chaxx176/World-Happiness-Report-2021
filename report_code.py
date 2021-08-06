@@ -182,6 +182,71 @@ re4.isnull().sum()
 
 re3.to_csv('report3_7.csv',index=False) ###final
 
+########################################################## 0806 ##################################################################
+import pandas as pd
+report3_7=pd.read_csv('report3_7.csv')
+report3_7.info()
+
+###우울증 관련 자료 추가
+df1=pd.read_csv('mental-and-substance-use-as-share-of-disease.csv')
+df2=pd.read_csv('prevalence-by-mental-and-substance-use-disorder.csv')
+df3=pd.read_csv('share-with-mental-and-substance-disorders.csv')
+
+##### 컬럼 수정
+df1.columns
+df2.columns
+df3.columns
+
+del df1['Code']
+del df2['Code']
+del df3['Code']
+
+df1.rename\
+    (columns={'Entity':'Country','DALYs (Disability-Adjusted Life Years) - Mental and substance use disorders - Sex: Both - Age: All Ages (Percent)':'DALYs Mental disorders'},inplace=True)
+
+df2.rename(columns={'Entity':'Country',
+                    'Prevalence - Schizophrenia - Sex: Both - Age: Age-standardized (Percent)':'Schizophrenia',
+                    'Prevalence - Bipolar disorder - Sex: Both - Age: Age-standardized (Percent)':'Bipolar disorder',
+                    'Prevalence - Eating disorders - Sex: Both - Age: Age-standardized (Percent)':'Eating disorders',
+                    'Prevalence - Anxiety disorders - Sex: Both - Age: Age-standardized (Percent)':'Anxiety disorders',
+                    'Prevalence - Drug use disorders - Sex: Both - Age: Age-standardized (Percent)':'Drug use disorders',
+                    'Prevalence - Depressive disorders - Sex: Both - Age: Age-standardized (Percent)':'Depressive disorders',
+                    'Prevalence - Alcohol use disorders - Sex: Both - Age: Age-standardized (Percent)':'Alcohol use disorders'},inplace=True)
+
+df3.rename\
+    (columns={'Entity':'Country','Prevalence - Mental and substance use disorders - Sex: Both - Age: Age-standardized (Percent)':'Mental and substance use disorders'},inplace=True)
+
+####병합
+q1=pd.merge(report3_7,df1,how='left',on=['Country','Year'])
+q1.isnull().sum()
+
+q2=pd.merge(report3_7,df2,how='left',on=['Country','Year'])
+q2.isnull().sum()
+
+q3=pd.merge(report3_7,df3,how='left',on=['Country','Year'])
+q3.isnull().sum()
+
+#앞 년도로 채우기 
+q1.fillna(method='ffill',inplace=True)
+q2.fillna(method='ffill',inplace=True)
+q3.fillna(method='ffill',inplace=True)
+
+##페어플로 보기
+import seaborn as sns
+import matplotlib.pyplot as plt
+sns.pairplot(q1)
+plt.show()
+
+import seaborn as sns
+import matplotlib.pyplot as plt
+sns.pairplot(q2)
+plt.show()
+
+import seaborn as sns
+import matplotlib.pyplot as plt
+sns.pairplot(q3)
+plt.show()
+
 
 
 
